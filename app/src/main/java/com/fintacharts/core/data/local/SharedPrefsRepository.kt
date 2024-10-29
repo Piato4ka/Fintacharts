@@ -5,9 +5,8 @@ import android.content.SharedPreferences
 import android.util.Log
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
-import com.fintacharts.ctypto.domain.SharedPrefsDataSource
 
-class SharedPrefsRepository(context: Context) : SharedPrefsDataSource {
+class SharedPrefsRepository(context: Context) {
     private var pref: SharedPreferences?
     private var editor: SharedPreferences.Editor?
 
@@ -38,11 +37,11 @@ class SharedPrefsRepository(context: Context) : SharedPrefsDataSource {
     }
 
 
-    override fun setAccessToken(token: String) {
+   fun setAccessToken(token: String) {
         ACCESS_TOKEN.put(token)
     }
 
-    override fun setRefreshToken(token: String) {
+    fun setRefreshToken(token: String) {
         REFRESH_TOKEN.put(token)
     }
 

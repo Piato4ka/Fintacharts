@@ -10,7 +10,6 @@ data class CoinScreenUiState(
     val price: String = "",
     val formatedDate: String = hardcodedDate,
     val listData: List<Double> = listOf(0.0, 0.0, 0.0, 0.0),
-    val listDate: List<String> = listOf("", ""),
 )
 
 

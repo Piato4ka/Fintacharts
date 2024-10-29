@@ -1,5 +1,6 @@
 package com.fintacharts.ctypto.presentation
 
+import android.content.res.Configuration
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -23,6 +24,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.rememberTextMeasurer
@@ -58,7 +60,6 @@ fun CoinScreenRoot(
         }
     }
 
-
     CoinScreen(
         pair = uiState.pair,
         price = uiState.price,
@@ -71,7 +72,6 @@ fun CoinScreenRoot(
             viewModel.getCoinHistory()
         }
     )
-
 }
 
 
@@ -85,17 +85,27 @@ fun CoinScreen(
     onSubscribeClicked: () -> Unit = {},
 ) {
     val defaultSpace = 16.dp
+    val horizontalLineCount = 10
     val textMeasurer = rememberTextMeasurer()
     val maxPriceText = priceList.maxOrNull()?.toString() ?: ""
-
     val textHeightDp = with(LocalDensity.current) {
         val textLayoutResult = textMeasurer.measure(
             text = maxPriceText,
             style = MaterialTheme.typography.bodyMedium
         )
-        textLayoutResult.size.height.toDp() // Convert height from px to dp
+        textLayoutResult.size.height.toDp()
     }
-    val horizontalLineCount = 10
+    val textWidthDp = with(LocalDensity.current) {
+        val textLayoutResult = textMeasurer.measure(
+            text = maxPriceText,
+            style = MaterialTheme.typography.bodyMedium
+        )
+        textLayoutResult.size.width.toDp()
+    }
+
+    val configuration = LocalConfiguration.current
+    val isPortrait = configuration.orientation == Configuration.ORIENTATION_PORTRAIT
+
 
     Surface(modifier = Modifier.background(MaterialTheme.colorScheme.background)) {
         Column(
@@ -105,51 +115,57 @@ fun CoinScreen(
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            TextField(
-                modifier = Modifier.fillMaxWidth(),
-                value = pair,
-                onValueChange = {}
-            )
-            Spacer(modifier = Modifier.size(defaultSpace))
-            Button(
-                modifier = Modifier,
-                onClick = onSubscribeClicked
-            ) {
+            if (isPortrait) {
+                TextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = pair,
+                    onValueChange = {}
+                )
+                Spacer(modifier = Modifier.size(defaultSpace))
+                Button(
+                    modifier = Modifier,
+                    onClick = onSubscribeClicked
+                ) {
 
-                Text(
-                    text = "Subscribe",
-                    style = MaterialTheme.typography.bodyLarge
-                )
-            }
-            Spacer(modifier = Modifier.size(defaultSpace))
-            Text(
-                text = "Market data:",
-                style = MaterialTheme.typography.bodyLarge
-            )
-            Spacer(modifier = Modifier.size(defaultSpace))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-            ) {
-                Text(
-                    text = "Symbol: \n$pair",
-                    style = MaterialTheme.typography.bodyLarge
-                )
-                if (isLoading)
-                    CircularProgressIndicator()
-                else
                     Text(
-                        text = "Price: \n$price",
+                        text = "Subscribe",
                         style = MaterialTheme.typography.bodyLarge
                     )
+                }
+                Spacer(modifier = Modifier.size(defaultSpace))
                 Text(
-                    text = "Time: \n$formatedDate",
+                    text = "Market data:",
                     style = MaterialTheme.typography.bodyLarge
                 )
+                Spacer(modifier = Modifier.size(defaultSpace))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    Text(
+                        text = "Symbol: \n$pair",
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                    if (isLoading)
+                        CircularProgressIndicator()
+                    else
+                        Text(
+                            text = "Price: \n$price",
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                    Text(
+                        text = "Time: \n$formatedDate",
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
+                Spacer(modifier = Modifier.size(defaultSpace))
+                Text(
+                    modifier = Modifier.padding(start = textWidthDp),
+                    text = "12H",
+                    style = MaterialTheme.typography.bodyMedium
+                )
             }
-            Spacer(modifier = Modifier.size(defaultSpace * 2))
-
             Row(
                 modifier = Modifier
                     .fillMaxHeight(),
@@ -193,7 +209,7 @@ private fun CoinScreenPreview() {
         CoinScreen(
             pair = "BTC/USD",
             price = "6000",
-            priceList = listOf(),
+            priceList = listOf(0.0, 5.0, 7.4, 4.2),
             formatedDate = "Oct 13, 16:20",
         )
     }
